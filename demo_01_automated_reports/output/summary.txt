@@ -1,0 +1,21 @@
+========================================================
+         AUTOMATED SALES REPORT — SUMMARY
+========================================================
+
+  Total Revenue        : $  135,634.86
+  Total Units Sold     :          754
+  Average Order Value  : $    1,695.44
+
+  --- Regional Performance ---
+  Best Region          : North  ($38,350.56)
+
+  --- Category Performance ---
+  Best Category        : Electronics  ($96,179.86)
+
+  --- Product Performance ---
+  Best-Selling Product : Laptop Pro 15  ($32,499.75)
+
+  --- Client Performance ---
+  Top Client           : Apex Solutions  ($17,023.96)
+
+========================================================

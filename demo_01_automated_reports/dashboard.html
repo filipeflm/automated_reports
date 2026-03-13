@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Automated Sales Report — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+  /* ─── Reset & Base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #07080d;
+    --surface:   #0e1018;
+    --card:      #13151f;
+    --border:    rgba(255,255,255,0.06);
+    --accent1:   #00f0c8;
+    --accent2:   #7b61ff;
+    --accent3:   #ff5e87;
+    --accent4:   #f0a500;
+    --text:      #e8eaf0;
+    --muted:     #5c6075;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-head);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Noise overlay ─────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .5;
+  }
+
+  /* ─── Grid background lines ─────────────────────────────────── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Layout ────────────────────────────────────────────────── */
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ─── Header ────────────────────────────────────────────────── */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 64px;
+    flex-wrap: wrap;
+  }
+
+  .header-left { display: flex; flex-direction: column; gap: 12px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,240,200,.08);
+    border: 1px solid rgba(0,240,200,.2);
+    color: var(--accent1);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    width: fit-content;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent1);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .4; transform: scale(1.5); }
+  }
+
+  .header h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+  }
+
+  .header h1 span { color: var(--accent1); }
+
+  .header-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .05em;
+  }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #000;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .04em;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s;
+    text-decoration: none;
+  }
+
+  .run-btn:hover { opacity: .85; transform: translateY(-2px); }
+
+  .run-cmd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+  /* ─── KPI row ───────────────────────────────────────────────── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s, border-color .25s;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,.12);
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: .25;
+  }
+
+  .kpi-card:nth-child(1)::before { background: var(--accent1); }
+  .kpi-card:nth-child(2)::before { background: var(--accent2); }
+  .kpi-card:nth-child(3)::before { background: var(--accent3); }
+  .kpi-card:nth-child(4)::before { background: var(--accent4); }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1;
+  }
+
+  .kpi-card:nth-child(1) .kpi-value { color: var(--accent1); }
+  .kpi-card:nth-child(2) .kpi-value { color: var(--accent2); }
+  .kpi-card:nth-child(3) .kpi-value { color: var(--accent3); }
+  .kpi-card:nth-child(4) .kpi-value { color: var(--accent4); }
+
+  .kpi-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ─── Section label ─────────────────────────────────────────── */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── Chart grid ────────────────────────────────────────────── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    transition: border-color .25s;
+  }
+
+  .chart-card:hover { border-color: rgba(255,255,255,.1); }
+
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chart-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chart-wrap { position: relative; }
+
+  /* ─── Tables grid ───────────────────────────────────────────── */
+  .tables-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 900px) { .tables-grid { grid-template-columns: 1fr; } }
+
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th:last-child { text-align: right; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.03); }
+
+  tbody td {
+    padding: 13px 0;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  tbody td:last-child {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent1);
+  }
+
+  .rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    margin-right: 10px;
+    background: rgba(255,255,255,.05);
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  tr:nth-child(1) .rank { background: rgba(0,240,200,.15); color: var(--accent1); }
+  tr:nth-child(2) .rank { background: rgba(123,97,255,.15); color: var(--accent2); }
+  tr:nth-child(3) .rank { background: rgba(255,94,135,.12); color: var(--accent3); }
+
+  .bar-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,.06);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    transform-origin: left;
+    animation: grow .8s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ─── Region donut row ──────────────────────────────────────── */
+  .region-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 900px) { .region-row { grid-template-columns: 1fr 1fr; } }
+
+  .region-tile {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform .25s, border-color .25s;
+  }
+
+  .region-tile:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.1); }
+
+  .region-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .region-value {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+  }
+
+  .region-pct {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .region-bar { height: 3px; border-radius: 100px; margin-top: 4px; }
+
+  /* ─── Pipeline / flow diagram ───────────────────────────────── */
+  .pipeline {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+
+  .pipeline-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .step-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .step-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    max-width: 72px;
+    line-height: 1.3;
+  }
+
+  .step-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+    max-width: 80px;
+  }
+
+  .connector {
+    flex: 1;
+    min-width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--accent1), var(--border));
+    position: relative;
+    margin-bottom: 32px;
+  }
+
+  .connector::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: -4px;
+    width: 0; height: 0;
+    border-left: 8px solid var(--accent1);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+
+  /* ─── Footer ────────────────────────────────────────────────── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .footer-left {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .tech-stack {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tech-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 100px;
+    transition: color .2s, border-color .2s;
+  }
+
+  .tech-pill:hover { color: var(--accent1); border-color: rgba(0,240,200,.3); }
+
+  /* ─── Entrance animations ────────────────────────────────────── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp .6s cubic-bezier(.22,1,.36,1) forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .kpi-card:nth-child(1) { animation-delay: .05s; }
+  .kpi-card:nth-child(2) { animation-delay: .10s; }
+  .kpi-card:nth-child(3) { animation-delay: .15s; }
+  .kpi-card:nth-child(4) { animation-delay: .20s; }
+
+  /* ─── Counter animation ──────────────────────────────────────── */
+  .counter { display: inline-block; }
+
+  /* ─── Scrollbar ──────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 100px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <header class="header fade-up">
+    <div class="header-left">
+      <span class="badge">Live Report · Jan – Jul 2025</span>
+      <h1>Sales <span>Automated</span><br>Report</h1>
+      <p class="header-meta">Generated by generate_report.py · 80 transactions · 4 regions · 10 products</p>
+    </div>
+    <div class="header-right">
+      <a class="run-btn" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Run Report
+      </a>
+      <span class="run-cmd">python script/generate_report.py</span>
+    </div>
+  </header>
+
+  <!-- ── KPI Cards ───────────────────────────────────── -->
+  <div class="kpi-row">
+    <div class="kpi-card fade-up">
+      <p class="kpi-label">Total Revenue</p>
+      <p class="kpi-value">$<span class="counter" data-target="135634" data-prefix="">135,634</span></p>
+      <p class="kpi-sub">.86 USD · full period</p>
+    </div>
+    <div class="kpi-card fade-up">
+      <p class="kpi-label">Units Sold</p>
+      <p class="kpi-value"><span class="counter" data-target="754">754</span></p>
+      <p class="kpi-sub">across all regions</p>
+    </div>
+    <div class="kpi-card fade-up">
+      <p class="kpi-label">Avg Order Value</p>
+      <p class="kpi-value">$<span class="counter" data-target="1695">1,695</span></p>
+      <p class="kpi-sub">.44 per transaction</p>
+    </div>
+    <div class="kpi-card fade-up">
+      <p class="kpi-label">Active Clients</p>
+      <p class="kpi-value"><span class="counter" data-target="16">16</span></p>
+      <p class="kpi-sub">unique companies</p>
+    </div>
+  </div>
+
+  <!-- ── Pipeline ───────────────────────────────────── -->
+  <p class="section-label">Automation Pipeline</p>
+  <div class="pipeline fade-up">
+    <div class="pipeline-steps">
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <p class="step-label">Load CSV</p>
+        <p class="step-sub">pandas read_csv</p>
+      </div>
+      <div class="connector"></div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <p class="step-label">Clean & Validate</p>
+        <p class="step-sub">types · nulls</p>
+      </div>
+      <div class="connector"></div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <p class="step-label">Calc Metrics</p>
+        <p class="step-sub">groupby · agg</p>
+      </div>
+      <div class="connector"></div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent4)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <p class="step-label">Excel Report</p>
+        <p class="step-sub">6 sheets · styled</p>
+      </div>
+      <div class="connector"></div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <p class="step-label">Text Summary</p>
+        <p class="step-sub">summary.txt</p>
+      </div>
+      <div class="connector"></div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <p class="step-label">Charts PNG</p>
+        <p class="step-sub">matplotlib</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Charts ─────────────────────────────────────── -->
+  <p class="section-label">Performance Breakdown</p>
+  <div class="chart-grid fade-up">
+    <div class="chart-card">
+      <p class="chart-title">
+        <span class="dot" style="background:var(--accent1)"></span>
+        Revenue by Product
+      </p>
+      <div class="chart-wrap">
+        <canvas id="chartProducts" height="260"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <p class="chart-title">
+        <span class="dot" style="background:var(--accent2)"></span>
+        Revenue by Category
+      </p>
+      <div class="chart-wrap">
+        <canvas id="chartCategory" height="260"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Region tiles ───────────────────────────────── -->
+  <p class="section-label">Regional Performance</p>
+  <div class="region-row fade-up">
+    <div class="region-tile">
+      <p class="region-name">North</p>
+      <p class="region-value" style="color:var(--accent1)">$38,350</p>
+      <p class="region-pct">28.3% of total</p>
+      <div class="region-bar" style="background:var(--accent1);width:100%"></div>
+    </div>
+    <div class="region-tile">
+      <p class="region-name">East</p>
+      <p class="region-value" style="color:var(--accent2)">$36,182</p>
+      <p class="region-pct">26.7% of total</p>
+      <div class="region-bar" style="background:var(--accent2);width:94%"></div>
+    </div>
+    <div class="region-tile">
+      <p class="region-name">West</p>
+      <p class="region-value" style="color:var(--accent3)">$34,019</p>
+      <p class="region-pct">25.1% of total</p>
+      <div class="region-bar" style="background:var(--accent3);width:88%"></div>
+    </div>
+    <div class="region-tile">
+      <p class="region-name">South</p>
+      <p class="region-value" style="color:var(--accent4)">$27,083</p>
+      <p class="region-pct">20.0% of total</p>
+      <div class="region-bar" style="background:var(--accent4);width:70%"></div>
+    </div>
+  </div>
+
+  <!-- ── Tables ─────────────────────────────────────── -->
+  <p class="section-label">Rankings</p>
+  <div class="tables-grid fade-up">
+
+    <!-- Top Products -->
+    <div class="table-card">
+      <p class="chart-title">
+        <span class="dot" style="background:var(--accent1)"></span>
+        Top 5 Products by Revenue
+      </p>
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Revenue</th></tr>
+        </thead>
+        <tbody id="tbProducts"></tbody>
+      </table>
+    </div>
+
+    <!-- Top Clients -->
+    <div class="table-card">
+      <p class="chart-title">
+        <span class="dot" style="background:var(--accent3)"></span>
+        Top 5 Clients by Revenue
+      </p>
+      <table>
+        <thead>
+          <tr><th>Client</th><th>Revenue</th></tr>
+        </thead>
+        <tbody id="tbClients"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ── Revenue Chart full width ───────────────────── -->
+  <p class="section-label">Monthly Revenue Trend</p>
+  <div class="chart-card fade-up" style="margin-bottom:32px;">
+    <p class="chart-title">
+      <span class="dot" style="background:var(--accent4)"></span>
+      Revenue Over Time · Jan – Jul 2025
+    </p>
+    <canvas id="chartTimeline" height="120"></canvas>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────── -->
+  <footer class="footer fade-up">
+    <div class="footer-left">
+      Generated · 2025 · Automated Reports Demo 01 · Portfolio Project
+    </div>
+    <div class="tech-stack">
+      <span class="tech-pill">Python 3.11</span>
+      <span class="tech-pill">pandas</span>
+      <span class="tech-pill">openpyxl</span>
+      <span class="tech-pill">matplotlib</span>
+      <span class="tech-pill">Chart.js</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ─── Data ──────────────────────────────────────────────────────── */
+const PRODUCTS = [
+  { name: "Laptop Pro 15",          rev: 32499.75 },
+  { name: "Monitor 27\" 4K",        rev: 22468.00 },
+  { name: "Standing Desk",          rev: 18374.00 },
+  { name: "Noise-Cancel Headphones",rev: 12197.54 },
+  { name: "Mechanical Keyboard",    rev: 10668.00 },
+];
+
+const CLIENTS = [
+  { name: "Apex Solutions",   rev: 17023.96 },
+  { name: "ClearPath Inc.",   rev: 12022.90 },
+  { name: "Blue Ridge Co.",   rev: 11333.83 },
+  { name: "Delta Systems",    rev:  9049.98 },
+  { name: "Foresight Ltd.",   rev:  8786.90 },
+];
+
+const MONTHLY = [
+  { month: "Jan", rev: 17350.83 },
+  { month: "Feb", rev: 16497.49 },
+  { month: "Mar", rev: 20743.88 },
+  { month: "Apr", rev: 17981.12 },
+  { month: "May", rev: 19921.32 },
+  { month: "Jun", rev: 21396.75 },
+  { month: "Jul", rev: 21743.47 },
+];
+
+const CATEGORIES = [
+  { name: "Electronics", rev: 96179.86 },
+  { name: "Furniture",   rev: 39455.00 },
+];
+
+/* ─── Chart defaults ────────────────────────────────────────────── */
+Chart.defaults.color = "#5c6075";
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+
+const gridColor = "rgba(255,255,255,0.05)";
+
+function usd(n) {
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+/* ─── Products bar chart ────────────────────────────────────────── */
+const maxP = Math.max(...PRODUCTS.map(d => d.rev));
+new Chart(document.getElementById("chartProducts"), {
+  type: "bar",
+  data: {
+    labels: PRODUCTS.map(d => d.name),
+    datasets: [{
+      data: PRODUCTS.map(d => d.rev),
+      backgroundColor: [
+        "rgba(0,240,200,.75)",
+        "rgba(0,240,200,.55)",
+        "rgba(0,240,200,.40)",
+        "rgba(0,240,200,.28)",
+        "rgba(0,240,200,.18)",
+      ],
+      borderColor: "transparent",
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: ctx => " " + usd(ctx.parsed.x) }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: gridColor },
+        ticks: { callback: v => usd(v) }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+/* ─── Category doughnut ─────────────────────────────────────────── */
+new Chart(document.getElementById("chartCategory"), {
+  type: "doughnut",
+  data: {
+    labels: CATEGORIES.map(d => d.name),
+    datasets: [{
+      data: CATEGORIES.map(d => d.rev),
+      backgroundColor: ["rgba(123,97,255,.8)", "rgba(255,94,135,.7)"],
+      borderColor: "#13151f",
+      borderWidth: 3,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: "68%",
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { padding: 20, usePointStyle: true, pointStyle: "circle" }
+      },
+      tooltip: {
+        callbacks: { label: ctx => " " + usd(ctx.parsed) }
+      }
+    }
+  }
+});
+
+/* ─── Timeline chart ────────────────────────────────────────────── */
+const gradient = (ctx) => {
+  const g = ctx.createLinearGradient(0, 0, 0, 260);
+  g.addColorStop(0, "rgba(240,165,0,.25)");
+  g.addColorStop(1, "rgba(240,165,0,0)");
+  return g;
+};
+
+const tlCtx = document.getElementById("chartTimeline").getContext("2d");
+new Chart(tlCtx, {
+  type: "line",
+  data: {
+    labels: MONTHLY.map(d => d.month),
+    datasets: [{
+      data: MONTHLY.map(d => d.rev),
+      borderColor: "#f0a500",
+      borderWidth: 2.5,
+      backgroundColor: gradient(tlCtx),
+      fill: true,
+      tension: 0.45,
+      pointBackgroundColor: "#f0a500",
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: ctx => " " + usd(ctx.parsed.y) }
+      }
+    },
+    scales: {
+      x: { grid: { color: gridColor } },
+      y: {
+        grid: { color: gridColor },
+        ticks: { callback: v => usd(v) }
+      }
+    }
+  }
+});
+
+/* ─── Populate tables ───────────────────────────────────────────── */
+function populateTable(tbodyId, data, nameKey) {
+  const maxRev = data[0].rev;
+  const tbody = document.getElementById(tbodyId);
+  data.forEach((item, i) => {
+    const pct = (item.rev / maxRev * 100).toFixed(0);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <span class="rank">${i + 1}</span>
+        <span class="bar-inline" style="display:inline-flex;align-items:center;gap:8px;max-width:180px;">
+          ${item[nameKey]}
+        </span>
+      </td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
+          <span>${usd(item.rev)}</span>
+          <div class="bar-track" style="width:80px;">
+            <div class="bar-fill" style="width:${pct}%;animation-delay:${i * .1 + .2}s"></div>
+          </div>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+populateTable("tbProducts", PRODUCTS, "name");
+populateTable("tbClients", CLIENTS, "name");
+
+/* ─── Counter animation ─────────────────────────────────────────── */
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10);
+  const duration = 1200;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 4);
+    const val = Math.round(ease * target);
+    el.textContent = val.toLocaleString("en-US");
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll(".counter").forEach(animateCounter);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll(".kpi-row").forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

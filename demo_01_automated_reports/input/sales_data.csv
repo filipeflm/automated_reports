@@ -1,0 +1,81 @@
+date,client_name,product,category,region,quantity,unit_price,total_value
+2025-01-03,Apex Solutions,Laptop Pro 15,Electronics,North,2,1299.99,2599.98
+2025-01-05,Blue Ridge Co.,Office Chair Deluxe,Furniture,South,5,249.50,1247.50
+2025-01-06,ClearPath Inc.,Wireless Keyboard,Electronics,East,10,89.90,899.00
+2025-01-08,Delta Systems,Standing Desk,Furniture,West,3,599.00,1797.00
+2025-01-09,Apex Solutions,USB-C Hub 7-in-1,Electronics,North,8,59.99,479.92
+2025-01-12,Foresight Ltd.,Monitor 27" 4K,Electronics,East,4,749.00,2996.00
+2025-01-14,GreenLeaf Corp.,Ergonomic Mouse,Electronics,South,15,44.90,673.50
+2025-01-15,Blue Ridge Co.,Bookcase 5-Shelf,Furniture,South,2,319.00,638.00
+2025-01-17,Harbor Tech,Laptop Pro 15,Electronics,West,1,1299.99,1299.99
+2025-01-20,Ironworks LLC,Noise-Cancel Headphones,Electronics,North,6,199.99,1199.94
+2025-01-22,ClearPath Inc.,Desk Lamp LED,Furniture,East,12,34.50,414.00
+2025-01-24,Juno Ventures,Mechanical Keyboard,Electronics,South,7,129.00,903.00
+2025-01-27,KeyStone Group,Monitor 27" 4K,Electronics,West,2,749.00,1498.00
+2025-01-29,Delta Systems,Ergonomic Mouse,Electronics,West,20,44.90,898.00
+2025-02-03,Lightwave Co.,Standing Desk,Furniture,North,4,599.00,2396.00
+2025-02-05,Apex Solutions,Webcam HD 1080p,Electronics,North,9,79.99,719.91
+2025-02-07,Meridian Inc.,Office Chair Deluxe,Furniture,East,3,249.50,748.50
+2025-02-10,Blue Ridge Co.,USB-C Hub 7-in-1,Electronics,South,14,59.99,839.86
+2025-02-12,NovaBuild Ltd.,Laptop Pro 15,Electronics,West,2,1299.99,2599.98
+2025-02-14,Apex Solutions,Noise-Cancel Headphones,Electronics,North,5,199.99,999.95
+2025-02-17,ClearPath Inc.,Bookcase 5-Shelf,Furniture,East,6,319.00,1914.00
+2025-02-19,Orion Systems,Mechanical Keyboard,Electronics,South,10,129.00,1290.00
+2025-02-21,Pinnacle Group,Desk Lamp LED,Furniture,West,25,34.50,862.50
+2025-02-24,QualityFirst LLC,Monitor 27" 4K,Electronics,North,3,749.00,2247.00
+2025-02-26,Redstone Corp.,Webcam HD 1080p,Electronics,East,11,79.99,879.89
+2025-03-03,GreenLeaf Corp.,Laptop Pro 15,Electronics,South,1,1299.99,1299.99
+2025-03-05,Foresight Ltd.,Standing Desk,Furniture,East,5,599.00,2995.00
+2025-03-07,Apex Solutions,Ergonomic Mouse,Electronics,North,18,44.90,808.20
+2025-03-10,Harbor Tech,USB-C Hub 7-in-1,Electronics,West,12,59.99,719.88
+2025-03-12,Ironworks LLC,Office Chair Deluxe,Furniture,North,4,249.50,998.00
+2025-03-14,Blue Ridge Co.,Monitor 27" 4K,Electronics,South,2,749.00,1498.00
+2025-03-17,Juno Ventures,Webcam HD 1080p,Electronics,South,8,79.99,639.92
+2025-03-19,KeyStone Group,Standing Desk,Furniture,West,2,599.00,1198.00
+2025-03-21,Lightwave Co.,Noise-Cancel Headphones,Electronics,North,7,199.99,1399.93
+2025-03-24,Meridian Inc.,Laptop Pro 15,Electronics,East,3,1299.99,3899.97
+2025-03-26,NovaBuild Ltd.,Desk Lamp LED,Furniture,West,30,34.50,1035.00
+2025-03-28,Delta Systems,Mechanical Keyboard,Electronics,West,9,129.00,1161.00
+2025-04-02,Orion Systems,Bookcase 5-Shelf,Furniture,South,4,319.00,1276.00
+2025-04-04,Apex Solutions,Monitor 27" 4K,Electronics,North,5,749.00,3745.00
+2025-04-07,Pinnacle Group,USB-C Hub 7-in-1,Electronics,West,20,59.99,1199.80
+2025-04-09,QualityFirst LLC,Ergonomic Mouse,Electronics,North,16,44.90,718.40
+2025-04-11,Redstone Corp.,Laptop Pro 15,Electronics,East,2,1299.99,2599.98
+2025-04-14,Blue Ridge Co.,Office Chair Deluxe,Furniture,South,7,249.50,1746.50
+2025-04-16,ClearPath Inc.,Noise-Cancel Headphones,Electronics,East,6,199.99,1199.94
+2025-04-18,Foresight Ltd.,Standing Desk,Furniture,East,3,599.00,1797.00
+2025-04-22,GreenLeaf Corp.,Webcam HD 1080p,Electronics,South,13,79.99,1039.87
+2025-04-24,Harbor Tech,Mechanical Keyboard,Electronics,West,11,129.00,1419.00
+2025-04-28,Apex Solutions,Desk Lamp LED,Furniture,North,40,34.50,1380.00
+2025-05-02,Ironworks LLC,Laptop Pro 15,Electronics,North,3,1299.99,3899.97
+2025-05-05,Juno Ventures,Monitor 27" 4K,Electronics,South,4,749.00,2996.00
+2025-05-07,KeyStone Group,USB-C Hub 7-in-1,Electronics,West,18,59.99,1079.82
+2025-05-09,Lightwave Co.,Office Chair Deluxe,Furniture,North,6,249.50,1497.00
+2025-05-12,Delta Systems,Bookcase 5-Shelf,Furniture,West,5,319.00,1595.00
+2025-05-14,Meridian Inc.,Ergonomic Mouse,Electronics,East,22,44.90,987.80
+2025-05-16,NovaBuild Ltd.,Noise-Cancel Headphones,Electronics,West,8,199.99,1599.92
+2025-05-19,Orion Systems,Webcam HD 1080p,Electronics,South,15,79.99,1199.85
+2025-05-21,Pinnacle Group,Laptop Pro 15,Electronics,West,2,1299.99,2599.98
+2025-05-23,QualityFirst LLC,Standing Desk,Furniture,North,4,599.00,2396.00
+2025-05-26,Redstone Corp.,Mechanical Keyboard,Electronics,East,12,129.00,1548.00
+2025-05-28,Apex Solutions,Monitor 27" 4K,Electronics,North,6,749.00,4494.00
+2025-06-02,Blue Ridge Co.,Desk Lamp LED,Furniture,South,28,34.50,966.00
+2025-06-04,ClearPath Inc.,Laptop Pro 15,Electronics,East,4,1299.99,5199.96
+2025-06-06,GreenLeaf Corp.,USB-C Hub 7-in-1,Electronics,South,16,59.99,959.84
+2025-06-09,Foresight Ltd.,Noise-Cancel Headphones,Electronics,East,10,199.99,1999.90
+2025-06-11,Harbor Tech,Office Chair Deluxe,Furniture,West,5,249.50,1247.50
+2025-06-13,Ironworks LLC,Monitor 27" 4K,Electronics,North,3,749.00,2247.00
+2025-06-16,Juno Ventures,Ergonomic Mouse,Electronics,South,25,44.90,1122.50
+2025-06-18,KeyStone Group,Bookcase 5-Shelf,Furniture,West,6,319.00,1914.00
+2025-06-20,Lightwave Co.,Webcam HD 1080p,Electronics,North,14,79.99,1119.86
+2025-06-23,NovaBuild Ltd.,Mechanical Keyboard,Electronics,West,15,129.00,1935.00
+2025-06-25,Apex Solutions,Standing Desk,Furniture,North,3,599.00,1797.00
+2025-06-27,Delta Systems,Laptop Pro 15,Electronics,West,2,1299.99,2599.98
+2025-06-30,Meridian Inc.,USB-C Hub 7-in-1,Electronics,East,20,59.99,1199.80
+2025-07-02,Orion Systems,Noise-Cancel Headphones,Electronics,South,9,199.99,1799.91
+2025-07-04,Pinnacle Group,Monitor 27" 4K,Electronics,West,4,749.00,2996.00
+2025-07-07,QualityFirst LLC,Desk Lamp LED,Furniture,North,35,34.50,1207.50
+2025-07-09,Redstone Corp.,Office Chair Deluxe,Furniture,East,8,249.50,1996.00
+2025-07-11,Blue Ridge Co.,Laptop Pro 15,Electronics,South,3,1299.99,3899.97
+2025-07-14,ClearPath Inc.,Standing Desk,Furniture,East,4,599.00,2396.00
+2025-07-16,GreenLeaf Corp.,Mechanical Keyboard,Electronics,South,18,129.00,2322.00
