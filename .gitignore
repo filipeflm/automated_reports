@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+Untitled
+
+# Screenshots avulsas
+*.png
+!demo_01_automated_reports/screenshots/*.png
