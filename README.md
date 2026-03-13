@@ -4,7 +4,7 @@
 
 ---
 
-## Demo 01 — Sales Report Automation
+## Sales Report Automation
 
 A portfolio-ready automation demo that transforms raw sales CSV data into executive-style reports, charts and structured business outputs — with a single command.
 
